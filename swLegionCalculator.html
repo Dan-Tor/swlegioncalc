@@ -1,0 +1,284 @@
+<html>
+<title> Star Wars Legion Calculator </title>
+<head>
+</head>
+<body>
+
+  <script type="text/javascript">
+  var theForm = document.forms["combatForm"];
+
+
+  //Getting Red Attack Dice Pool
+  function getRedAttackDice(){
+    //Assume form with id="combatForm"
+    var theForm = document.forms["combatForm"];
+    //Get a reference to the dince input
+    var attackPool = theForm.elements["redDice"];
+    var surge = theForm.elements["surgeCrit"];
+    var noSurge = theForm.elements["noSurge"];
+    var confirmedRedHits =0;
+      if(attackPool.value!="" && surge.checked==true && attackPool.value >= 0){
+          var redAttackDice = .875; //Generic Surge
+          confirmedRedHits = parseInt(attackPool.value) * redAttackDice;
+      }else if(attackPool.value!="" && attackPool.value >= 0){
+        var redAttackDice = .750; //Normal Hit
+        confirmedRedHits = parseInt(attackPool.value) * redAttackDice;
+      }
+      return confirmedRedHits;
+  }
+
+
+  //Getting Black Attack Dice Pool
+  function getBlackAttackDice(){
+    //Assume form with id="combatForm"
+    var theForm = document.forms["combatForm"];
+    //Get a reference to the dince input
+    var attackPool = theForm.elements["blackDice"];
+    var surge = theForm.elements["surgeCrit"];
+    var noSurge = theForm.elements["noSurge"];
+    var confirmedBlackHits =0;
+      if(attackPool.value!="" && surge.checked==true && attackPool.value >= 0){
+          var blackAttackDice = .625; //Generic Surge
+          confirmedBlackHits = parseInt(attackPool.value) * blackAttackDice;
+      }else if(attackPool.value!="" && attackPool.value >= 0){
+        var blackAttackDice = .500; //Normal Hit
+        confirmedBlackHits = parseInt(attackPool.value) * blackAttackDice;
+      }
+      return confirmedBlackHits;
+  }
+
+  //Getting White Attack Dice Attack Pool
+  function getWhiteAttackDice(){
+    //Assume form with id="combatForm"
+    var theForm = document.forms["combatForm"];
+    //Get a reference to the dince input
+    var attackPool = theForm.elements["whiteDice"];
+    var surge = theForm.elements["surgeCrit"];
+    var noSurge = theForm.elements["noSurge"];
+    var confirmedWhiteHits = 0;
+      if(attackPool.value!="" && surge.checked==true && attackPool.value >= 0){
+          var whiteAttackDice = .375; //Generic Surge
+          confirmedWhiteHits = parseInt(attackPool.value) * whiteAttackDice;
+      }else if(attackPool.value!="" && attackPool.value >= 0){
+        var whiteAttackDice = .250; //Normal Hit
+        confirmedWhiteHits = parseInt(attackPool.value) * whiteAttackDice;
+      }
+      return confirmedWhiteHits;
+  }
+
+  function dodgeToken(){
+    var theForm = document.forms["combatForm"];
+    var numOfDodges = theForm.elements["numOfDodges"];
+    var confirmedDodges = 0;
+    if(numOfDodges.value!="" && numOfDodges.value >0){
+      confirmedDodges = parseInt(numOfDodges.value);
+    }
+    return confirmedDodges;
+  }
+
+//this is checking for terrain Cover
+  function coverCheck(){
+    var theForm = document.forms["combatForm"];
+    var lightCoverCheck = theForm.elements["lightCover"];
+    var heavyCoverCheck = theForm.elements["heavyCover"];
+    var noCoverCheck = theForm.elements["noCover"];
+    var blastONCheck = theForm.elements["blastON"];
+    var blastOFFCheck = theForm.elements["blastOFF"];
+    var incomingFire = applyDamage();
+    if(blastONCheck.checked==true){
+      //If blast is checked there is no cover and full damage is returned
+      var applySaves = getWhiteAttackDice() + getBlackAttackDice() + getRedAttackDice();
+    }else if(lightCoverCheck.checked==true){
+      var applySaves = getWhiteAttackDice() + getBlackAttackDice() + getRedAttackDice();
+      applySaves = applySaves -1;
+    }else if(heavyCoverCheck.checked==true){
+      var applySaves = getWhiteAttackDice() + getBlackAttackDice() + getRedAttackDice();
+      applySaves = applySaves -2;
+    }
+    else if(noCoverCheck.checked==true){
+      var applySaves = getWhiteAttackDice() + getBlackAttackDice() + getRedAttackDice();
+    }
+    return applySaves;
+  }
+
+//This is used to check for regular incoming fire OR to account for Armor debuff
+/*function checkAttackType(){
+  var theForm = document.forms["combatForm"];
+  var armorYesCheck = theForm.elements["armorYes"];
+  var armorNoCheck = theForm.elements["armorNo"];
+  if(armorYesCheck.checked==true){
+    //if armor is present, apply the debuff
+    getDebuffRedAttack();
+    getDebuffBlackAttack();
+    getDebuffWhiteAttack();
+  }else if(armorNoCheck.checked==true){
+    //If there isn't armor, proceed to attack normally
+    getRedAttackDice();
+    getBlackAttackDice();
+    getWhiteAttackDice();
+  }
+}
+
+
+function getDebuffRedAttack(){
+  var theForm = document.forms["combatForm"];
+  //Get a reference to the dince input
+  var attackPool = theForm.elements["redDice"];
+  var surge = theForm.elements["surgeCrit"];
+  var noSurge = theForm.elements["noSurge"];
+  var confirmedRedHits =0;
+    if(attackPool.value!="" && surge.checked==true && attackPool.value >= 0){
+        var redAttackDice = .250; //THIS IS THE ARMOR DEBUFF FOR CRITS
+        confirmedRedHits = parseInt(attackPool.value) * redAttackDice;
+    }else if(attackPool.value!="" && attackPool.value >= 0){
+      var redAttackDice = .125; //THIS IS THE ARMOR DEBUFF FOR HITS
+      confirmedRedHits = parseInt(attackPool.value) * redAttackDice;
+    }
+    return confirmedRedHits;
+}
+function getDebuffBlackAttack(){
+  //Assume form with id="combatForm"
+  var theForm = document.forms["combatForm"];
+  //Get a reference to the dince input
+  var attackPool = theForm.elements["blackDice"];
+  var surge = theForm.elements["surgeCrit"];
+  var noSurge = theForm.elements["noSurge"];
+  var confirmedBlackHits =0;
+    if(attackPool.value!="" && surge.checked==true && attackPool.value >= 0){
+        var blackAttackDice = .250; //THIS IS THE ARMOR DEBUFF FOR CRITS
+        confirmedBlackHits = parseInt(attackPool.value) * blackAttackDice;
+    }else if(attackPool.value!="" && attackPool.value >= 0){
+      var blackAttackDice = .125; //THIS IS THE ARMOR DEBUFF FOR HITS
+      confirmedBlackHits = parseInt(attackPool.value) * blackAttackDice;
+    }
+    return confirmedBlackHits;
+}
+function getDebuffWhiteAttack(){
+  //Assume form with id="combatForm"
+  var theForm = document.forms["combatForm"];
+  //Get a reference to the dince input
+  var attackPool = theForm.elements["whiteDice"];
+  var surge = theForm.elements["surgeCrit"];
+  var noSurge = theForm.elements["noSurge"];
+  var confirmedWhiteHits = 0;
+    if(attackPool.value!="" && surge.checked==true && attackPool.value >= 0){
+        var whiteAttackDice = .250; //THIS IS THE ARMOR DEBUFF FOR CRITS
+        confirmedWhiteHits = parseInt(attackPool.value) * whiteAttackDice;
+    }else if(attackPool.value!="" && attackPool.value >= 0){
+      var whiteAttackDice = ..125; //THIS IS THE ARMOR DEBUFF FOR HITS
+      confirmedWhiteHits = parseInt(attackPool.value) * whiteAttackDice;
+    }
+    return confirmedWhiteHits;
+}
+*/
+
+//CURRENTLY NOT WORKING
+/*
+  function defenseDice(){
+  var whiteDefense = .166;
+  var red Defense = .500;
+  //red no surge .500
+  //red surge .666
+  var countRedAttacks = theForm.elements["redDice"];
+  var countBlackAttacks = theForm.elements["blackDice"];
+  var countWhiteAttacks = theForm.elements["whiteDice"];
+  var whiteDefenseCheck = theForm.elements["whiteDefense"];
+  var redDefenseCheck = theForm.elements["redDefense"];
+  var totalAttackCount = countRedAttacks + countBlackAttacks + countWhiteAttacks;
+  if(totalAttackCount.value != "" && totalAttackCount.value >= 0 && whiteDefenseCheck.checked==true){
+  var totalDefense = totalAttackCount * whiteDefense;
+  totalDefense = applyDamage() - totalDefense;
+
+  }else if(totalAttackCount.value != "" && totalAttackCount.value >= 0 && redDefenseCheck.checked==true){
+  var totalDefense = totalAttackCount * redDefense;
+  totalDefense = applyDamage() - totalDefense;
+
+  }
+    return totalDefense;
+  }
+*/
+
+/*
+Apply Pierce
+check total number of saves then remove based on Pierce #
+*/
+  function applyDamage(){
+    var finalAttackPool = getRedAttackDice() + getBlackAttackDice() + getWhiteAttackDice();
+    var divobj = document.getElementById('displayHits');
+    divobj.style.display='block';
+    divobj.innerHTML = "Total Hits "+finalAttackPool;
+  }
+
+  function applySaves(){
+    var applySaves = coverCheck();
+    var applyDodges = dodgeToken();
+    var finalResults = coverCheck() - dodgeToken();
+    var divobj = document.getElementById('displaySaves');
+    divobj.style.display='block';
+    divobj.innerHTML = "Total Hits "+finalResults;
+  }
+  </script>
+
+  <form action="" id ="combatForm">
+  <h1> Attack Dice </h1>
+
+  <label> Red Dice </label>
+  <input type="number" id= "redDice" onchange="getRedAttackDice()" onclick="applySaves()"  value="Number of Dice"><br>
+
+  <label> Black Dice </label>
+  <input type="number" id= "blackDice" onchange="getBlackAttackDice()" onclick="applySaves()" value="Number of Dice"><br>
+
+  <label> White Dice </label>
+  <input type="number" id= "whiteDice" onchange="getWhiteAttackDice()" onclick="applySaves()" value="Number of Dice"><br>
+
+  <label> No Surge </label>
+  <input type="radio" id= "noSurge" name="surgeCheck" onclick="applyDamage()" onchange="applySaves()" value="None" checked><br>
+
+  <label> Surge to Crit </label>
+  <input type="radio" id= "surgeCrit" name="surgeCheck" onclick="applyDamage()" onchange="applySaves()"value="Surge to Crit"><br>
+
+  <input type="button" onclick="applyDamage()"  value="Submit" >
+  <div id="displayHits"></div>
+
+
+  <h1> Cover & Armor </h1>
+  <label>No Cover</label><br>
+  <input type="radio" id= "noCover" name="coverType" onChange="coverCheck()" onclick="applySaves()" value="No Cover" checked><br>
+  <label>Light Cover</label><br>
+  <input type="radio" id= "lightCover" name="coverType" onChange="coverCheck()" onclick="applySaves()" value="Light Cover"><br>
+  <label>Heavy Cover</label><br>
+  <input type="radio" id= "heavyCover" name="coverType" onChange="coverCheck()" onclick="applySaves()" value="Heavy Cover"><br>
+  <label>No Armor</label><br>
+  <input type="radio" id= "armorNo" name="armorCheck" value="No Armor" onclick="applySaves()","getRedAttackDice()","getBlackAttackDice()","getWhiteAttackDice()" onclick="applySaves()" checked><br>
+  <label>Armor</label><br>
+  <input type="radio" id= "armorYes" name="armorCheck" value="Armor"  onclick="applySaves()","getRedAttackDice()","getBlackAttackDice()","getWhiteAttackDice()" onclick="applySaves()"><br>
+  <label>Blast</label><br>
+  <input type="radio" id= "blastON" name="blastCheck" value="Blast" onclick="applySaves(), applyDamage()"><br>
+  <label>No Blast</label><br>
+  <input type="radio" id= "blastOFF" name="blastCheck" value="BlastOff" onclick="applySaves(), applyDamage()" checked><br>
+
+  <h1> Defense Dice </h1>
+  <label>Red Defense</label>
+  <input type="radio" id="redDefense" name="defenseCheck" onChange="defenseDice()" onclick="applySaves()"value="Red Defense Dice"><br>
+  <label>White Defense</label>
+  <input type="radio" id="whiteDefense" name="defenseCheck" onChange="defenseDice()" onclick="applySaves()"value="Red Defense Dice" checked><br>
+  <div id="displayDefenseDice"></div>
+
+  <label> Dodge Tokens </label><br>
+  <input type="number" id=numOfDodges onchange="dodgeToken()" onclick="applySaves()" value="Number of Dodge Tokens"><br>
+
+  <input type="button" onclick="applySaves()" value="Submit" >
+  <div id="displaySaves"></div>
+  </form>
+
+
+
+
+
+
+
+
+
+</body>
+
+</html>
